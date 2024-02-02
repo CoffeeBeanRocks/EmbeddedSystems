@@ -20,13 +20,18 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32l4xx_it.h"
+#include <stdio.h>
+#include <string.h>
+#include <queue.h>
+#include "command.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
-
+extern queue_t queue;
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
@@ -55,7 +60,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-
+extern UART_HandleTypeDef huart2;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -197,6 +202,48 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32l4xx.s).                    */
 /******************************************************************************/
+
+/**
+  * @brief This function handles USART2 global interrupt.
+  */
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+
+  /* USER CODE END USART2_IRQn 0 */
+  HAL_UART_IRQHandler(&huart2);
+  /* USER CODE BEGIN USART2_IRQn 1 */
+  uint8_t ch;
+  ch = getchar();
+  enqueue(&queue, ch);
+
+//  int result = enqueue(&queue, ch);
+//  if(result){
+//  	  printf("Queue is Full!");
+//  }
+//  else {
+//  	  putchar(ch);
+//  }
+//
+//  if(ch == '\r')
+//  {
+//	  uint32_t mask;
+//	  mask = disable();
+//
+//	  char buffer[QUEUE_SIZE];
+//	  int ptr = 0;
+//	  while(!queue_empty(&queue)) {
+//		buffer[ptr] = dequeue(&queue);
+//		ptr++;
+//	  }
+//	  buffer[ptr] = '\0';
+//
+//	  restore(mask);
+//	  printf("\nEntered string: %s\n\r", buffer);
+//  }
+
+  /* USER CODE END USART2_IRQn 1 */
+}
 
 /* USER CODE BEGIN 1 */
 

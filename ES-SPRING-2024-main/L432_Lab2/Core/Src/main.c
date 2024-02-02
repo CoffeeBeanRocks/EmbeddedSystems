@@ -24,6 +24,9 @@
 #include "retarget.h"
 #include <stdio.h>
 #include <string.h>
+#include <stm32l4xx_ll_usart.h>
+#include <queue.h>
+#include "command.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -33,7 +36,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+queue_t queue;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -77,7 +80,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  char ch;
+
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -92,49 +95,32 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   RetargetInit(&huart2);
+
+  LL_USART_EnableIT_RXNE(USART2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   printf("System up and running!\n\r");
-
-  int bufferSize = 50;
-  char buffer[bufferSize];
-  int index = 0;
+  init_queue(&queue);
+  prompt();
 
   while (1)
   {
+	  uint8_t command[MAX_COMMAND_LEN];
+	  if (get_command(command))
+	  {
+		  if(execute_command(command))
+		  {
+			  printf("NOK\n\r");
+			  prompt();
+		  }
+	  }
     /* USER CODE END WHILE */
-	ch = getchar();
-	if(ch == '\r')
-	{
-		buffer[index] = 0;
-		printf("\n\r");
 
-		if(strcmp(buffer, "LON") == 0)
-		{
-			printf("I am on!\n\r");
-			HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_SET);
-		}
-		else if(strcmp(buffer, "LOF") == 0)
-		{
-			printf("I am off!\n\r");
-			HAL_GPIO_WritePin(LD3_GPIO_Port, LD3_Pin, GPIO_PIN_RESET);
-		}
-		else
-		{
-			printf("Unknown Command!\n\r");
-		}
-
-		index = 0;
-	}
-	else {
-		putchar(ch);
-		buffer[index] = ch;
-		index++;
-	}
     /* USER CODE BEGIN 3 */
   }
+
   /* USER CODE END 3 */
 }
 
