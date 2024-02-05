@@ -20,18 +20,16 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32l4xx_it.h"
-#include <stdio.h>
-#include <string.h>
-#include <queue.h>
-#include "command.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
+#include "queue.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN TD */
 extern queue_t queue;
+extern volatile int alarm;
 /* USER CODE END TD */
 
 /* Private define ------------------------------------------------------------*/
@@ -60,6 +58,7 @@ extern queue_t queue;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern RTC_HandleTypeDef hrtc;
 extern UART_HandleTypeDef huart2;
 /* USER CODE BEGIN EV */
 
@@ -217,32 +216,21 @@ void USART2_IRQHandler(void)
   ch = getchar();
   enqueue(&queue, ch);
 
-//  int result = enqueue(&queue, ch);
-//  if(result){
-//  	  printf("Queue is Full!");
-//  }
-//  else {
-//  	  putchar(ch);
-//  }
-//
-//  if(ch == '\r')
-//  {
-//	  uint32_t mask;
-//	  mask = disable();
-//
-//	  char buffer[QUEUE_SIZE];
-//	  int ptr = 0;
-//	  while(!queue_empty(&queue)) {
-//		buffer[ptr] = dequeue(&queue);
-//		ptr++;
-//	  }
-//	  buffer[ptr] = '\0';
-//
-//	  restore(mask);
-//	  printf("\nEntered string: %s\n\r", buffer);
-//  }
-
   /* USER CODE END USART2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles RTC alarm interrupt through EXTI line 18.
+  */
+void RTC_Alarm_IRQHandler(void)
+{
+  /* USER CODE BEGIN RTC_Alarm_IRQn 0 */
+  alarm = 1;
+  /* USER CODE END RTC_Alarm_IRQn 0 */
+  HAL_RTC_AlarmIRQHandler(&hrtc);
+  /* USER CODE BEGIN RTC_Alarm_IRQn 1 */
+
+  /* USER CODE END RTC_Alarm_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
